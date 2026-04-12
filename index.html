@@ -251,9 +251,33 @@
     const pass = document.getElementById('passInput').value.trim();
     const msg = document.getElementById('message');
 
-    if (!name || pass.length !== 4) {
+    // NGワードチェック
+    const ngWords = ['まんこ','ちんこ','おまんこ','おちんこ','おちんぽ','シコシコ','しこしこ','おっぱい','おつぱい','セックス','せっくす','セツクス','おしっこ','おしつこ','アナル','あなる','死ね','しね','殺す','ころす','クズ','くず','バカ','ばか','アホ','あほ','キモい','きもい','うんこ','ウンコ','うんち','ウンチ','ちんぽ','チンポ','ちんぽこ','チンポコ'];
+    const hasNG = ngWords.some(w => name.includes(w));
+    if (hasNG) {
       msg.style.color = 'red';
-      msg.textContent = "名前を入力し、パスワードは4桁にしてください";
+      msg.textContent = "その名前は使用できません";
+      return;
+    }
+
+    // パスワードチェック（数字のみ）
+    if (!pass || pass.length !== 4 || !/^\d{4}$/.test(pass)) {
+      msg.style.color = 'red';
+      msg.textContent = "パスワードは数字4桁にしてください";
+      return;
+    }
+
+    // 禁止パスワード
+    const ngPass = ['4545', '0721'];
+    if (ngPass.includes(pass)) {
+      msg.style.color = 'red';
+      msg.textContent = "そのパスワードは使用できません";
+      return;
+    }
+
+    if (!name) {
+      msg.style.color = 'red';
+      msg.textContent = "名前を入力してください";
       return;
     }
 
@@ -275,45 +299,23 @@
       return;
     }
 
-    // 位置情報を取得してアカウント作成
-    const accountData = {
+    await set(ref(db, 'accounts/' + name), {
       pass,
       balance: 0,
       history: [],
       lastBonus: 0,
       createdAt: Date.now()
-    };
-
-    if (!navigator.geolocation) {
-      msg.style.color = 'red';
-      msg.textContent = "このブラウザは位置情報に対応していません";
-      showLoading(false);
-      return;
-    }
-
-    msg.style.color = '#888';
-    msg.textContent = "位置情報を取得中...";
-
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      accountData.location = {
-        lat: pos.coords.latitude,
-        lon: pos.coords.longitude
-      };
-      await set(ref(db, 'accounts/' + name), accountData);
-      msg.style.color = 'green';
-      msg.textContent = "アカウント作成成功！";
-      document.getElementById('nameInput').value = '';
-      document.getElementById('passInput').value = '';
-      showLoading(false);
-    }, () => {
-      msg.style.color = 'red';
-      msg.textContent = "アカウント作成には位置情報の許可が必要です";
-      showLoading(false);
     });
+
+    msg.style.color = 'green';
+    msg.textContent = "アカウント作成成功！";
+    document.getElementById('nameInput').value = '';
+    document.getElementById('passInput').value = '';
+    showLoading(false);
   };
 
   const ADMIN_NAME = '管理者';
-  const ADMIN_PASS = '7421';
+  const ADMIN_PASS = 'administrator2026';
 
   // ログイン
   window.login = async function() {
@@ -624,11 +626,10 @@
     listDiv.innerHTML = Object.entries(accounts)
       .sort((a,b) => (b[1].balance||0) - (a[1].balance||0))
       .map(([name, data]) => {
-        const loc = data.location ? `<a href="https://maps.google.com/?q=${data.location.lat},${data.location.lon}" target="_blank" style="color:#4caf50;font-size:0.85em;">📍 地図で見る</a>` : '📍 位置情報なし';
         const date = data.createdAt ? new Date(data.createdAt).toLocaleDateString('ja-JP') : '不明';
         return `<div style="padding:6px 0;border-bottom:1px solid #eee;">
           👤 <b>${name}</b>：${data.balance||0} しむ<br>
-          <span style="font-size:0.8em;color:#888;">作成日: ${date} / ${loc}</span>
+          <span style="font-size:0.8em;color:#888;">作成日: ${date}</span>
         </div>`;
       }).join('');
   };
