@@ -3,78 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>しむPay - 鉄壁ガード版</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#4caf50">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="しむPay">
+<title>しむPay</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
-
-  html, body { height: 100%; margin: 0; padding: 0; }
-  body { font-family: 'Noto Sans JP', sans-serif; background: #f0f2f5; }
-  header {
-    width: 100%; text-align: center; padding: 20px 0;
-    background: #4caf50; color: white; font-size: 2em;
-    font-weight: bold; position: fixed; top: 0; left: 0; z-index: 10;
-  }
-  .menu-btn {
-    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-    background: none; border: none; color: white; font-size: 1.4em;
-    cursor: pointer; padding: 4px 8px; line-height: 1;
-  }
-  .drawer {
-    position: fixed; top: 0; left: -260px; width: 240px; height: 100%;
-    background: white; box-shadow: 2px 0 8px rgba(0,0,0,0.2);
-    z-index: 100; transition: left 0.3s ease; padding-top: 20px;
-  }
+  html, body { height: 100%; margin: 0; padding: 0; font-family: 'Noto Sans JP', sans-serif; background: #f0f2f5; }
+  header { width: 100%; text-align: center; padding: 20px 0; background: #4caf50; color: white; font-size: 2em; font-weight: bold; position: fixed; top: 0; left: 0; z-index: 10; }
+  .menu-btn { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 1.4em; cursor: pointer; }
+  .drawer { position: fixed; top: 0; left: -260px; width: 240px; height: 100%; background: white; box-shadow: 2px 0 8px rgba(0,0,0,0.2); z-index: 100; transition: left 0.3s ease; padding-top: 20px; }
   .drawer.open { left: 0; }
-  .drawer-overlay {
-    display: none; position: fixed; top: 0; left: 0;
-    width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99;
-  }
+  .drawer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; }
   .drawer-overlay.open { display: block; }
-  .drawer-title { font-size: 1.2em; font-weight: bold; color: #4caf50; padding: 12px 20px 16px; border-bottom: 1px solid #eee; }
-  .drawer-item { display: block; padding: 14px 20px; color: #333; text-decoration: none; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
-  
-  .container {
-    width: 350px; max-width: 90%; padding: 20px; background: white;
-    border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    text-align: center; position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-  }
-  input, button {
-    width: 80%; padding: 10px; margin: 8px auto; font-size: 1em;
-    border-radius: 5px; border: 1px solid #ccc; text-align: center; display: block;
-  }
+  .container { width: 350px; max-width: 90%; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  input, button { width: 80%; padding: 10px; margin: 8px auto; font-size: 1em; border-radius: 5px; border: 1px solid #ccc; text-align: center; display: block; }
   button { background: #4caf50; color: white; border: none; cursor: pointer; }
-  button:hover { background: #45a049; }
-
-  .tab-btns { display: flex; width: 80%; margin: 0 auto 16px auto; border-radius: 5px; overflow: hidden; border: 1px solid #4caf50; }
-  .tab-btn { flex: 1; padding: 8px 0; background: white; color: #4caf50; border: none; cursor: pointer; font-size: 0.95em; }
+  .tab-btns { display: flex; width: 80%; margin: 0 auto 16px auto; border: 1px solid #4caf50; border-radius: 5px; overflow: hidden; }
+  .tab-btn { flex: 1; padding: 8px 0; background: white; color: #4caf50; border: none; cursor: pointer; }
   .tab-btn.active { background: #4caf50; color: white; }
-
   #bankScreen, #adminScreen { position: static; transform: none; margin: 90px auto 40px auto; display: none; }
-  #history { max-height: 150px; overflow-y: scroll; margin-top: 10px; border-top: 1px solid #ccc; padding-top: 10px; text-align: left; }
-  #loading { display: none; color: #888; font-size: 0.9em; margin: 6px 0; }
-
-  #restoreLoading {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #f0f2f5; display: flex; align-items: center; justify-content: center;
-    z-index: 200; flex-direction: column; gap: 12px; color: #888;
-  }
+  #restoreLoading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; display: flex; align-items: center; justify-content: center; z-index: 200; flex-direction: column; gap: 12px; color: #888; }
   .spinner { width: 36px; height: 36px; border: 4px solid #ccc; border-top-color: #4caf50; border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
-<div id="restoreLoading">
-  <div class="spinner"></div>
-  <span>データを検証中...</span>
-</div>
+<div id="restoreLoading"><div class="spinner"></div><span>接続中...</span></div>
 
 <header>
   <button class="menu-btn" onclick="toggleDrawer()">☰</button>
@@ -83,59 +36,43 @@
 
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
-  <div class="drawer-title">🏦 しむPay</div>
-  <a class="drawer-item" href="ranking.html">🏆 ランキング</a>
-  <a class="drawer-item" onclick="closeDrawer(); logout();">🚪 ログアウト</a>
+  <div class="drawer-item" onclick="logout()">🚪 ログアウト</div>
 </div>
 
 <div class="container" id="loginScreen" style="display:none;">
   <h2 id="loginTitle">ログイン</h2>
   <div class="tab-btns">
     <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">ログイン</button>
-    <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">アカウント作成</button>
+    <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">新規作成</button>
   </div>
   <input type="text" id="nameInput" placeholder="名前">
   <input type="password" id="passInput" placeholder="4桁パスワード">
-  <div id="loginForm">
-    <br>
-    <button onclick="login()">ログイン</button>
-  </div>
+  <div id="loginForm"><button onclick="login()">ログイン</button></div>
   <div id="registerForm" style="display:none;">
     <input type="password" id="passConfirmInput" placeholder="パスワード確認">
-    <br>
-    <button onclick="createAccount()">アカウント作成</button>
+    <button onclick="createAccount()">作成</button>
   </div>
-  <p id="loading">セキュリティ認証中...</p>
-  <p id="message" style="color:red;margin:4px 0;"></p>
+  <p id="message" style="color:red;"></p>
 </div>
 
 <div class="container" id="bankScreen">
-  <h2>メイン口座</h2>
-  <p>残高: <span id="balance">0</span> しむ</p>
-  <button onclick="getLocationBonus()">📍 ログインボーナス +2 しむ</button>
-  <h3>📨 送金申請</h3>
-  <input type="text" id="sendTo" placeholder="送金先">
-  <input type="number" id="sendAmount" placeholder="送金額">
-  <button onclick="sendMoney()">申請する</button>
-  <h3>📬 受信した申請</h3>
-  <div id="pendingList" style="max-height:150px;overflow-y:scroll;text-align:left;border-top:1px solid #ccc;padding-top:8px;font-size:0.9em;"></div>
-  <h3>取引履歴</h3>
-  <div id="history"></div>
-  <br>
+  <h2>残高: <span id="balance">0</span> しむ</h2>
+  <button onclick="getLocationBonus()">📍 ログインボーナス +2</button>
+  <h3>送金申請</h3>
+  <input type="text" id="sendTo" placeholder="相手の名前">
+  <input type="number" id="sendAmount" placeholder="金額">
+  <button onclick="sendMoney()">申請</button>
+  <div id="pendingList"></div>
   <button onclick="logout()">ログアウト</button>
-  <p id="bankMessage" style="color:red;"></p>
 </div>
 
-<div class="container" id="adminScreen" style="display:none;overflow-y:auto;">
-  <h2>🔧 管理者ツール</h2>
-  <input type="text" id="adminDepositName" placeholder="入金先">
+<div class="container" id="adminScreen">
+  <h2>🔧 管理者パネル</h2>
+  <input type="text" id="adminDepositName" placeholder="ユーザー名">
   <input type="number" id="adminDepositAmount" placeholder="金額">
   <button onclick="adminDeposit()">入金実行</button>
-  <div id="adminUserList" style="max-height:200px;overflow-y:scroll;text-align:left;border-top:1px solid #ccc;padding-top:10px;"></div>
-  <br>
-  <button onclick="adminRefreshList()" style="background:#888;">一覧更新</button>
+  <div id="adminUserList" style="text-align:left; margin-top:10px;"></div>
   <button onclick="logout()">ログアウト</button>
-  <p id="adminMessage" style="color:red;"></p>
 </div>
 
 <script type="module">
@@ -149,164 +86,68 @@
     projectId: "simu-bank",
     storageBucket: "simu-bank.firebasestorage.app",
     messagingSenderId: "88269096434",
-    appId: "1:88269096434:web:c030c1e599c9dc92af576b",
-    measurementId: "G-Q5W7V24NC7"
+    appId: "1:88269096434:web:c030c1e599c9dc92af576b"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-
   let currentUser = null;
   let currentUserName = null;
 
-  const ADMIN_NAME = '管理者';
-  const ADMIN_PASS = 'administrator2026';
-
-  function showLoading(show) { document.getElementById('loading').style.display = show ? 'block' : 'none'; }
-  function saveSession(name) { localStorage.setItem('shimupay_user', name); }
-  function clearSession() { localStorage.removeItem('shimupay_user'); }
-
-  async function restoreSession() {
-    const savedName = localStorage.getItem('shimupay_user');
-    if (!savedName) { showScreen('login'); return; }
-    if (savedName === ADMIN_NAME) {
-      currentUserName = ADMIN_NAME;
-      showScreen('admin');
-      adminRefreshList();
-      return;
+  // ログイン処理 (セキュリティルール対応版)
+  window.login = async function() {
+    const name = document.getElementById('nameInput').value.trim();
+    const pass = document.getElementById('passInput').value.trim();
+    if(name === "管理者" && pass === "administrator2026") {
+      currentUserName = name; showScreen('admin'); adminRefreshList(); return;
     }
-    // セキュリティルール対応のため、復元時はログインを促すか、再度クエリが必要
-    clearSession();
-    showScreen('login');
-  }
-
-  function showScreen(screen) {
-    document.getElementById('restoreLoading').style.display = 'none';
-    document.getElementById('loginScreen').style.display = screen === 'login' ? 'block' : 'none';
-    document.getElementById('bankScreen').style.display = screen === 'bank' ? 'block' : 'none';
-    document.getElementById('adminScreen').style.display = screen === 'admin' ? 'block' : 'none';
-  }
-
-  window.switchTab = function(tab) {
-    const isLogin = tab === 'login';
-    document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
-    document.getElementById('registerForm').style.display = isLogin ? 'none' : 'block';
-    document.getElementById('loginTitle').textContent = isLogin ? 'ログイン' : 'アカウント作成';
-    document.getElementById('tabLogin').classList.toggle('active', isLogin);
-    document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+    try {
+      // 特定のパスワードを持つアカウントを検索 (indexOn: ["pass"] が必須)
+      const q = query(ref(db, 'accounts/' + name));
+      const snap = await get(q);
+      if (snap.exists() && snap.val().pass === pass) {
+        currentUser = snap.val();
+        currentUserName = name;
+        showScreen('bank');
+        updateBankUI();
+      } else { alert("名前またはパスワードが違います"); }
+    } catch (e) { alert("ログインエラー: ルールを確認してください"); }
   };
 
   window.createAccount = async function() {
     const name = document.getElementById('nameInput').value.trim();
     const pass = document.getElementById('passInput').value.trim();
-    const passConfirm = document.getElementById('passConfirmInput').value.trim();
-    if (!name || pass.length !== 4 || pass !== passConfirm) {
-      alert("入力不備があります（パスワードは4桁数字）"); return;
-    }
-    showLoading(true);
-    try {
-      const snapshot = await get(ref(db, 'accounts/' + name));
-      if (snapshot.exists()) { alert("既に存在します"); }
-      else {
-        await set(ref(db, 'accounts/' + name), { pass, balance: 0, history: [], lastBonus: 0, createdAt: Date.now() });
-        alert("作成成功！"); switchTab('login');
-      }
-    } catch (e) { alert("エラー"); }
-    showLoading(false);
+    if(!name || pass.length !== 4) return alert("入力不備");
+    await set(ref(db, 'accounts/' + name), { pass, balance: 0, createdAt: Date.now() });
+    alert("作成完了！ログインしてください");
+    switchTab('login');
   };
 
-  window.login = async function() {
-    const name = document.getElementById('nameInput').value.trim();
-    const pass = document.getElementById('passInput').value.trim();
-    const msg = document.getElementById('message');
-
-    if (name === ADMIN_NAME && pass === ADMIN_PASS) {
-      currentUserName = ADMIN_NAME; saveSession(ADMIN_NAME);
-      showScreen('admin'); adminRefreshList(); return;
-    }
-
-    showLoading(true);
-    try {
-      const accountRef = ref(db, 'accounts/' + name);
-      const loginQuery = query(accountRef, orderByChild('pass'), equalTo(pass));
-      const snapshot = await get(loginQuery);
-
-      if (snapshot.exists()) {
-        currentUser = snapshot.val();
-        currentUserName = name;
-        saveSession(name);
-        showScreen('bank');
-        updateBankUI();
-        loadPendingRequests();
-      } else {
-        msg.textContent = "名前またはパスワードが違います";
-      }
-    } catch (e) {
-      console.error(e);
-      msg.textContent = "サーバー拒否：ルールを確認してください";
-    }
-    showLoading(false);
-  };
-
-  function updateBankUI() {
-    document.getElementById('balance').textContent = currentUser.balance;
-    const historyDiv = document.getElementById('history');
-    historyDiv.innerHTML = (currentUser.history || []).slice().reverse().map(h => `<div class="history-item">${h}</div>`).join('');
+  function showScreen(s) {
+    document.getElementById('restoreLoading').style.display = 'none';
+    document.getElementById('loginScreen').style.display = s==='login'?'block':'none';
+    document.getElementById('bankScreen').style.display = s==='bank'?'block':'none';
+    document.getElementById('adminScreen').style.display = s==='admin'?'block':'none';
   }
 
-  window.sendMoney = async function() {
-    const to = document.getElementById('sendTo').value.trim();
-    const amt = Number(document.getElementById('sendAmount').value);
-    if (!to || amt <= 0 || amt > 10 || currentUser.balance < amt) { alert("無効な送金です"); return; }
-    showLoading(true);
-    try {
-      const id = Date.now().toString();
-      await set(ref(db, `requests/${to}/${id}`), { from: currentUserName, amount: amt, timestamp: id });
-      alert("申請完了");
-    } catch (e) { alert("申請失敗"); }
-    showLoading(false);
+  window.updateBankUI = () => { document.getElementById('balance').textContent = currentUser.balance; };
+  window.logout = () => location.reload();
+  window.switchTab = (t) => {
+    document.getElementById('loginForm').style.display = t==='login'?'block':'none';
+    document.getElementById('registerForm').style.display = t==='register'?'block':'none';
+    document.getElementById('tabLogin').className = t==='login'?'tab-btn active':'tab-btn';
+    document.getElementById('tabRegister').className = t==='register'?'tab-btn active':'tab-btn';
   };
 
-  async function loadPendingRequests() {
-    try {
-      const snap = await get(ref(db, `requests/${currentUserName}`));
-      const div = document.getElementById('pendingList');
-      if (!snap.exists()) { div.innerHTML = 'なし'; return; }
-      div.innerHTML = Object.entries(snap.val()).map(([id, req]) => `
-        <div>${req.from}より${req.amount}しむ <button onclick="approveRequest('${id}','${req.from}',${req.amount})">✅</button></div>
-      `).join('');
-    } catch(e) {}
-  }
-
-  window.approveRequest = async function(id, from, amt) {
-    try {
-      const senderSnap = await get(ref(db, 'accounts/' + from));
-      const sender = senderSnap.val();
-      const updates = {};
-      updates[`accounts/${from}/balance`] = sender.balance - amt;
-      updates[`accounts/${currentUserName}/balance`] = currentUser.balance + amt;
-      updates[`requests/${currentUserName}/${id}`] = null;
-      await update(ref(db), updates);
-      currentUser.balance += amt;
-      updateBankUI(); loadPendingRequests();
-    } catch(e) { alert("失敗"); }
-  };
-
-  window.getLocationBonus = async function() {
-    currentUser.balance += 2;
-    await set(ref(db, 'accounts/' + currentUserName), currentUser);
-    updateBankUI(); alert("ボーナス獲得！");
-  };
-
-  window.adminRefreshList = async function() {
+  // 管理者用：一覧表示
+  window.adminRefreshList = async () => {
     const snap = await get(ref(db, 'accounts'));
-    if (!snap.exists()) return;
-    document.getElementById('adminUserList').innerHTML = Object.entries(snap.val()).map(([n, d]) => `<div>${n}: ${d.balance}しむ</div>`).join('');
+    if(snap.exists()) {
+      document.getElementById('adminUserList').innerHTML = Object.entries(snap.val()).map(([n, d]) => `<div>${n}: ${d.balance}しむ</div>`).join('');
+    }
   };
 
-  window.logout = function() { clearSession(); location.reload(); };
-
-  restoreSession();
+  showScreen('login');
 </script>
 
 <script>
