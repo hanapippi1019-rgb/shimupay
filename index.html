@@ -198,7 +198,6 @@
 </head>
 <body>
 
-<!-- リロード時の復元中表示 -->
 <div id="restoreLoading">
   <div class="spinner"></div>
   <span>読み込み中...</span>
@@ -216,31 +215,23 @@
   <a class="drawer-item" onclick="closeDrawer(); logout();">🚪 ログアウト</a>
 </div>
 
-<!-- ログイン画面（タブ切り替え式） -->
 <div class="container" id="loginScreen" style="display:none;">
   <h2 id="loginTitle">ログイン</h2>
-
   <div class="tab-btns">
     <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">ログイン</button>
     <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">アカウント作成</button>
   </div>
-
   <input type="text" id="nameInput" placeholder="名前">
   <input type="password" id="passInput" placeholder="4桁パスワード">
-
-  <!-- ログインフォーム -->
   <div id="loginForm">
     <br>
     <button onclick="login()">ログイン</button>
   </div>
-
-  <!-- アカウント作成フォーム -->
   <div id="registerForm" style="display:none;">
     <input type="password" id="passConfirmInput" placeholder="パスワード確認（もう一度）">
     <br>
     <button onclick="createAccount()">アカウント作成</button>
   </div>
-
   <p id="loading">処理中...</p>
   <p id="message" style="color:red;margin:4px 0;"></p>
 </div>
@@ -249,16 +240,13 @@
   <h2>しむPayアカウント</h2>
   <p>残高: <span id="balance">0</span> しむ</p>
   <button onclick="getLocationBonus()">📍 ログインボーナス +2 しむ</button>
-
   <h3>📨 送金申請</h3>
   <input type="text" id="sendTo" placeholder="送金先">
   <input type="number" id="sendAmount" placeholder="送金額">
   <br>
   <button onclick="sendMoney()">申請する</button>
-
   <h3>📬 受信した申請</h3>
   <div id="pendingList" style="max-height:150px;overflow-y:scroll;text-align:left;border-top:1px solid #ccc;padding-top:8px;font-size:0.9em;"></div>
-
   <h3>取引履歴</h3>
   <div id="history"></div>
   <br>
@@ -289,7 +277,6 @@
   <p id="adminMessage" style="color:red;"></p>
 </div>
 
-<!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -318,9 +305,6 @@
     document.getElementById('loading').style.display = show ? 'block' : 'none';
   }
 
-  // ==============================
-  // セッション管理（localStorage）
-  // ==============================
   function saveSession(name) {
     localStorage.setItem('shimupay_user', name);
   }
@@ -329,23 +313,18 @@
     localStorage.removeItem('shimupay_user');
   }
 
-  // リロード時にセッションを復元
   async function restoreSession() {
     const savedName = localStorage.getItem('shimupay_user');
     if (!savedName) {
       showScreen('login');
       return;
     }
-
-    // 管理者セッション復元
     if (savedName === ADMIN_NAME) {
       currentUserName = ADMIN_NAME;
       showScreen('admin');
       adminRefreshList();
       return;
     }
-
-    // 一般ユーザーセッション復元
     try {
       const snapshot = await get(ref(db, 'accounts/' + savedName));
       if (snapshot.exists()) {
@@ -371,9 +350,6 @@
     document.getElementById('adminScreen').style.display = screen === 'admin' ? 'block' : 'none';
   }
 
-  // ==============================
-  // タブ切り替え
-  // ==============================
   window.switchTab = function(tab) {
     const isLogin = tab === 'login';
     document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
@@ -385,13 +361,13 @@
     document.getElementById('message').textContent = '';
   };
 
-  // ==============================
-  // アカウント作成
-  // ==============================
   window.createAccount = async function() {
-    const name = document.getElementById('nameInput').value.trim();
-    const pass = document.getElementById('passInput').value.trim();
-    const passConfirm = document.getElementById('passConfirmInput').value.trim();
+    const nameEl = document.getElementById('nameInput');
+    const passEl = document.getElementById('passInput');
+    const passConfEl = document.getElementById('passConfirmInput');
+    const name = nameEl.value.trim();
+    const pass = passEl.value.trim();
+    const passConfirm = passConfEl.value.trim();
     const msg = document.getElementById('message');
 
     const ngWords = ['まんこ','ちんこ','おまんこ','おちんこ','おちんぽ','シコシコ','しこしこ','おっぱい','おつぱい','セックス','せっくす','セツクス','おしっこ','おしつこ','アナル','あなる','死ね','しね','殺す','ころす','クズ','くず','バカ','ばか','アホ','あほ','キモい','きもい','うんこ','ウンコ','うんち','ウンチ','ちんぽ','チンポ','ちんぽこ','チンポコ'];
@@ -404,10 +380,6 @@
     if (!pass || pass.length !== 4 || !/^\d{4}$/.test(pass)) {
       msg.style.color = 'red'; msg.textContent = "パスワードは数字4桁にしてください"; return;
     }
-    const ngPass = ['4545', '0721'];
-    if (ngPass.includes(pass)) {
-      msg.style.color = 'red'; msg.textContent = "そのパスワードは使用できません"; return;
-    }
     if (pass !== passConfirm) {
       msg.style.color = 'red'; msg.textContent = "パスワードが一致しません"; return;
     }
@@ -418,39 +390,32 @@
       msg.style.color = 'red'; msg.textContent = "その名前はすでに使われています"; showLoading(false); return;
     }
 
-    const allSnap = await get(ref(db, 'accounts'));
-    const count = allSnap.exists() ? Object.keys(allSnap.val()).length : 0;
-    if (count >= 50) {
-      msg.style.color = 'red'; msg.textContent = "アカウント上限に達しました"; showLoading(false); return;
-    }
-
     await set(ref(db, 'accounts/' + name), {
       pass, balance: 0, history: [], lastBonus: 0, createdAt: Date.now()
     });
 
     msg.style.color = 'green';
     msg.textContent = "アカウント作成成功！ログインしてください";
-    document.getElementById('nameInput').value = '';
-    document.getElementById('passInput').value = '';
-    document.getElementById('passConfirmInput').value = '';
+    nameEl.value = '';
+    passEl.value = '';
+    passConfEl.value = '';
     showLoading(false);
     switchTab('login');
   };
 
-  // ==============================
-  // ログイン
-  // ==============================
   window.login = async function() {
-    const name = document.getElementById('nameInput').value.trim();
-    const pass = document.getElementById('passInput').value.trim();
+    const nameEl = document.getElementById('nameInput');
+    const passEl = document.getElementById('passInput');
+    const name = nameEl.value.trim();
+    const pass = passEl.value.trim();
     const msg = document.getElementById('message');
 
-    // 管理者ログイン
     if (name === ADMIN_NAME && pass === ADMIN_PASS) {
       currentUserName = ADMIN_NAME;
       saveSession(ADMIN_NAME);
-      document.getElementById('nameInput').value = '';
-      document.getElementById('passInput').value = '';
+      // 入力を消去
+      nameEl.value = '';
+      passEl.value = '';
       msg.textContent = '';
       showScreen('admin');
       adminRefreshList();
@@ -467,17 +432,17 @@
     currentUserName = name;
     saveSession(name);
 
+    // ログイン成功時に内容を消去
+    nameEl.value = '';
+    passEl.value = '';
+    msg.textContent = '';
+
     showScreen('bank');
     updateBankUI();
     loadPendingRequests();
-
-    document.getElementById('nameInput').value = '';
-    document.getElementById('passInput').value = '';
-    msg.textContent = '';
     showLoading(false);
   };
 
-  // 残高・履歴表示
   function updateBankUI() {
     document.getElementById('balance').textContent = currentUser.balance;
     const historyDiv = document.getElementById('history');
@@ -491,36 +456,24 @@
     });
   }
 
-  // 送金申請
   window.sendMoney = async function() {
     const toName = document.getElementById('sendTo').value.trim();
     const amount = Number(document.getElementById('sendAmount').value);
     const msg = document.getElementById('bankMessage');
-
     if (!toName || amount <= 0 || currentUser.balance < amount) {
-      msg.style.color = 'red'; msg.textContent = "送金できません（残高不足または入力エラー）"; return;
+      msg.style.color = 'red'; msg.textContent = "入力内容または残高を確認してください"; return;
     }
-    if (toName === currentUserName) {
-      msg.style.color = 'red'; msg.textContent = "自分自身には送金できません"; return;
-    }
-    if (amount > 10) {
-      msg.style.color = 'red'; msg.textContent = "1回の送金は10しむまでです"; return;
-    }
-
     showLoading(true);
     try {
       const receiverSnap = await get(ref(db, 'accounts/' + toName));
       if (!receiverSnap.exists()) {
         msg.style.color = 'red'; msg.textContent = "送金先が見つかりません"; showLoading(false); return;
       }
-
       const requestId = Date.now().toString();
       await set(ref(db, `requests/${toName}/${requestId}`), {
         from: currentUserName, amount: amount, timestamp: requestId
       });
-
-      msg.style.color = 'green';
-      msg.textContent = `${toName}に申請を送りました！承認を待ってください`;
+      msg.style.color = 'green'; msg.textContent = "申請を送りました";
       document.getElementById('sendTo').value = '';
       document.getElementById('sendAmount').value = '';
     } catch (error) {
@@ -530,175 +483,32 @@
     }
   };
 
-  // 受信申請を表示
   async function loadPendingRequests() {
     const snap = await get(ref(db, `requests/${currentUserName}`));
     const div = document.getElementById('pendingList');
-    if (!snap.exists()) {
-      div.innerHTML = '<p style="color:#aaa;font-size:0.85em;">申請はありません</p>'; return;
-    }
-    const requests = snap.val();
-    div.innerHTML = Object.entries(requests).map(([id, req]) => `
+    if (!snap.exists()) { div.innerHTML = '<p>申請はありません</p>'; return; }
+    div.innerHTML = Object.entries(snap.val()).map(([id, req]) => `
       <div style="padding:6px 0;border-bottom:1px solid #eee;">
-        <b>${req.from}</b> から <b>${req.amount} しむ</b> の申請
-        <div style="margin-top:4px;">
-          <button onclick="approveRequest('${id}','${req.from}',${req.amount})" style="width:auto;padding:4px 10px;font-size:0.85em;display:inline-block;margin:2px;">✅ 承認</button>
-          <button onclick="rejectRequest('${id}')" style="width:auto;padding:4px 10px;font-size:0.85em;display:inline-block;margin:2px;background:#e74c3c;">❌ 拒否</button>
-        </div>
+        <b>${req.from}</b> から ${req.amount} しむ
+        <button onclick="approveRequest('${id}','${req.from}',${req.amount})" style="width:auto;display:inline;padding:2px 8px;">✅ 承認</button>
       </div>`).join('');
   }
 
-  // 承認
   window.approveRequest = async function(requestId, fromName, amount) {
-    const msg = document.getElementById('bankMessage');
     try {
       const senderSnap = await get(ref(db, 'accounts/' + fromName));
-      if (!senderSnap.exists()) { msg.style.color='red'; msg.textContent='送金者が見つかりません'; return; }
       const sender = senderSnap.val();
-      if (sender.balance < amount) { msg.style.color='red'; msg.textContent='送金者の残高が不足しています'; return; }
-
       const updates = {};
       updates[`accounts/${fromName}/balance`] = sender.balance - amount;
-      updates[`accounts/${fromName}/history`] = [...(sender.history||[]), `${currentUserName} に ${amount} しむ送金（承認済み）`].slice(-10);
       updates[`accounts/${currentUserName}/balance`] = currentUser.balance + amount;
-      updates[`accounts/${currentUserName}/history`] = [...(currentUser.history||[]), `${fromName} から ${amount} しむ受取（承認）`].slice(-10);
       updates[`requests/${currentUserName}/${requestId}`] = null;
-
       await update(ref(db), updates);
       currentUser.balance += amount;
-      currentUser.history = [...(currentUser.history||[]), `${fromName} から ${amount} しむ受取（承認）`].slice(-10);
       updateBankUI();
       loadPendingRequests();
-      msg.style.color = 'green';
-      msg.textContent = `${fromName}からの${amount}しむを承認しました！`;
-    } catch(e) {
-      msg.style.color = 'red'; msg.textContent = '承認に失敗しました';
-    }
+    } catch(e) { alert('承認に失敗しました'); }
   };
 
-  // 拒否
-  window.rejectRequest = async function(requestId) {
-    const msg = document.getElementById('bankMessage');
-    await set(ref(db, `requests/${currentUserName}/${requestId}`), null);
-    loadPendingRequests();
-    msg.style.color = '#888'; msg.textContent = '申請を拒否しました';
-  };
-
-  // 位置情報ボーナス
-  window.getLocationBonus = async function() {
-    const msg = document.getElementById('bankMessage');
-    const btn = document.querySelector('button[onclick="getLocationBonus()"]');
-    const now = Date.now();
-
-    if (now - (currentUser.lastLocationBonus || 0) < 24 * 60 * 60 * 1000) {
-      msg.style.color = 'red'; msg.textContent = "位置情報ボーナスは24時間に1回です"; return;
-    }
-    if (!navigator.geolocation) {
-      msg.textContent = "このブラウザは位置情報に対応していません"; return;
-    }
-
-    btn.disabled = true;
-    msg.style.color = '#888'; msg.textContent = "位置情報を取得中...";
-
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-      const targetLat = 35.5627, targetLon = 139.7163, limit = 500;
-      const R = 6371000;
-      const dLat = (lat - targetLat) * Math.PI / 180;
-      const dLon = (lon - targetLon) * Math.PI / 180;
-      const a = Math.sin(dLat/2)**2 + Math.cos(targetLat*Math.PI/180)*Math.cos(lat*Math.PI/180)*Math.sin(dLon/2)**2;
-      const distance = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-      if (distance <= limit) {
-        currentUser.balance += 2;
-        currentUser.history = currentUser.history || [];
-        currentUser.history.push("📍 ログインボーナス +2 しむ");
-        currentUser.lastLocationBonus = now;
-        await set(ref(db, 'accounts/' + currentUserName), currentUser);
-        updateBankUI();
-        msg.style.color = 'green'; msg.textContent = "📍 ボーナス +2 しむ獲得！";
-      } else {
-        msg.style.color = 'red'; msg.textContent = `対象の場所から離れています（約${Math.round(distance)}m）`;
-      }
-      btn.disabled = false;
-    }, () => {
-      msg.style.color = 'red'; msg.textContent = "位置情報の取得に失敗しました";
-      btn.disabled = false;
-    }, { timeout: 10000 });
-  };
-
-  // 管理者：残高設定
-  window.adminSetBalance = async function() {
-    const name = document.getElementById('adminTargetName').value.trim();
-    const amount = Number(document.getElementById('adminSetAmount').value);
-    const msg = document.getElementById('adminMessage');
-    if (!name || isNaN(amount) || amount < 0) { msg.style.color='red'; msg.textContent='入力エラー'; return; }
-    const snap = await get(ref(db, 'accounts/' + name));
-    if (!snap.exists()) { msg.style.color='red'; msg.textContent='ユーザーが見つかりません'; return; }
-    const user = snap.val();
-    await update(ref(db), {
-      [`accounts/${name}/balance`]: amount,
-      [`accounts/${name}/history`]: [...(user.history||[]), `🔧 管理者が残高を${amount}しむに設定`].slice(-10)
-    });
-    msg.style.color='green'; msg.textContent=`${name}の残高を${amount}しむに設定しました`;
-    adminRefreshList();
-  };
-
-  // 管理者：入金
-  window.adminDeposit = async function() {
-    const name = document.getElementById('adminDepositName').value.trim();
-    const amount = Number(document.getElementById('adminDepositAmount').value);
-    const msg = document.getElementById('adminMessage');
-    if (!name || amount <= 0) { msg.style.color='red'; msg.textContent='入力エラー'; return; }
-    const snap = await get(ref(db, 'accounts/' + name));
-    if (!snap.exists()) { msg.style.color='red'; msg.textContent='ユーザーが見つかりません'; return; }
-    const user = snap.val();
-    await update(ref(db), {
-      [`accounts/${name}/balance`]: (user.balance||0) + amount,
-      [`accounts/${name}/history`]: [...(user.history||[]), `🏦 管理者から +${amount} しむ入金`].slice(-10)
-    });
-    msg.style.color='green'; msg.textContent=`${name}に${amount}しむ入金しました`;
-    adminRefreshList();
-  };
-
-  // 管理者：引き出し
-  window.adminWithdraw = async function() {
-    const name = document.getElementById('adminWithdrawName').value.trim();
-    const amount = Number(document.getElementById('adminWithdrawAmount').value);
-    const msg = document.getElementById('adminMessage');
-    if (!name || amount <= 0) { msg.style.color='red'; msg.textContent='入力エラー'; return; }
-    const snap = await get(ref(db, 'accounts/' + name));
-    if (!snap.exists()) { msg.style.color='red'; msg.textContent='ユーザーが見つかりません'; return; }
-    const user = snap.val();
-    if ((user.balance||0) < amount) { msg.style.color='red'; msg.textContent='残高が足りません'; return; }
-    await update(ref(db), {
-      [`accounts/${name}/balance`]: user.balance - amount,
-      [`accounts/${name}/history`]: [...(user.history||[]), `🏦 管理者へ -${amount} しむ引き出し`].slice(-10)
-    });
-    msg.style.color='green'; msg.textContent=`${name}から${amount}しむ引き出しました`;
-    adminRefreshList();
-  };
-
-  // 管理者：一覧更新
-  window.adminRefreshList = async function() {
-    const snap = await get(ref(db, 'accounts'));
-    const listDiv = document.getElementById('adminUserList');
-    if (!snap.exists()) { listDiv.textContent = 'ユーザーなし'; return; }
-    const accounts = snap.val();
-    listDiv.innerHTML = Object.entries(accounts)
-      .sort((a,b) => (b[1].balance||0) - (a[1].balance||0))
-      .map(([name, data]) => {
-        const loc = data.location ? `<a href="https://maps.google.com/?q=${data.location.lat},${data.location.lon}" target="_blank" style="color:#4caf50;font-size:0.85em;">📍 地図で見る</a>` : '📍 位置情報なし';
-        const date = data.createdAt ? new Date(data.createdAt).toLocaleDateString('ja-JP') : '不明';
-        return `<div style="padding:6px 0;border-bottom:1px solid #eee;">
-          👤 <b>${name}</b>：${data.balance||0} しむ<br>
-          <span style="font-size:0.8em;color:#888;">作成日: ${date} / ${loc}</span>
-        </div>`;
-      }).join('');
-  };
-
-  // ログアウト
   window.logout = function() {
     currentUser = null;
     currentUserName = null;
@@ -706,7 +516,6 @@
     showScreen('login');
   };
 
-  // 起動時にセッション復元
   restoreSession();
 </script>
 
@@ -718,9 +527,6 @@
   function closeDrawer() {
     document.getElementById('drawer').classList.remove('open');
     document.getElementById('drawerOverlay').classList.remove('open');
-  }
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
   }
 </script>
 </body>
