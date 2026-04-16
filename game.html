@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>しむPay - ミニゲーム</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+  body { font-family: 'Noto Sans JP', sans-serif; background: #f0f2f5; margin: 0; text-align: center; }
+  header { background: #4caf50; color: white; padding: 20px 0; font-size: 1.5em; font-weight: bold; }
+  .container { width: 90%; max-width: 400px; margin: 20px auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+  .card-area { font-size: 5em; margin: 20px 0; min-height: 120px; }
+  .bet-info { font-size: 1.2em; margin-bottom: 20px; }
+  .btns { display: flex; gap: 10px; justify-content: center; }
+  button { padding: 12px 24px; font-size: 1em; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; }
+  .btn-high { background: #e74c3c; }
+  .btn-low { background: #3498db; }
+  .btn-back { background: #888; margin-top: 20px; width: 100%; }
+  #gameMsg { margin-top: 20px; font-weight: bold; min-height: 1.2em; }
+</style>
+</head>
+<body>
+
+<header>🃏 しむPay ゲーム</header>
+
+<div class="container">
+  <div class="bet-info">現在の残高: <span id="balance">--</span> しむ</div>
+  <p>次のカードは今の数字より大きい(High)？<br>それとも小さい(Low)？</p>
+  
+  <div class="card-area" id="cardDisplay">?</div>
+  
+  <div id="gameMsg">1回 1しむ で挑戦！</div>
+
+  <div class="btns">
+    <button class="btn-high" onclick="play('high')">High ↑</button>
+    <button class="btn-low" onclick="play('low')">Low ↓</button>
+  </div>
+
+  <button class="btn-back" onclick="location.href='index.html'">アプリに戻る</button>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAeZ6-QBxkvWLeHG-N20pjxvIHe05OK6Oc",
+    authDomain: "simu-bank.firebaseapp.com",
+    databaseURL: "https://simu-bank-default-rtdb.firebaseio.com",
+    projectId: "simu-bank",
+    storageBucket: "simu-bank.firebasestorage.app",
+    messagingSenderId: "88269096434",
+    appId: "1:88269096434:web:c030c1e599c9dc92af576b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  let currentUserName = localStorage.getItem('shimupay_user');
+  let currentCard = Math.floor(Math.random() * 13) + 1;
+  let userBalance = 0;
+
+  // 初期化
+  async function init() {
+    if (!currentUserName) {
+      alert("ログインが必要です");
+      location.href = 'index.html';
+      return;
+    }
+    document.getElementById('cardDisplay').textContent = currentCard;
+    await refreshBalance();
+  }
+
+  async function refreshBalance() {
+    const snap = await get(ref(db, 'accounts/' + currentUserName));
+    if (snap.exists()) {
+      userBalance = snap.val().balance;
+      document.getElementById('balance').textContent = userBalance;
+    }
+  }
+
+  window.play = async function(choice) {
+    if (userBalance < 1) {
+      alert("残高が足りません！");
+      return;
+    }
+
+    const nextCard = Math.floor(Math.random() * 13) + 1;
+    const msg = document.getElementById('gameMsg');
+    let win = false;
+
+    if (choice === 'high' && nextCard > currentCard) win = true;
+    if (choice === 'low' && nextCard < currentCard) win = true;
+    if (nextCard === currentCard) {
+        msg.textContent = `引き分け！(カード: ${nextCard})`;
+        msg.style.color = "orange";
+        return; 
+    }
+
+    // Firebase更新
+    const change = win ? 1 : -1;
+    const newBalance = userBalance + change;
+    const historyEntry = win ? "🎮 ゲーム勝利 +1 しむ" : "🎮 ゲーム敗北 -1 しむ";
+
+    const snap = await get(ref(db, 'accounts/' + currentUserName));
+    const history = snap.val().history || [];
+    history.push(historyEntry);
+
+    await update(ref(db, 'accounts/' + currentUserName), {
+      balance: newBalance,
+      history: history.slice(-10)
+    });
+
+    // 画面更新
+    document.getElementById('cardDisplay').textContent = nextCard;
+    if (win) {
+      msg.textContent = `正解！ +1 しむ獲得 (カード: ${nextCard})`;
+      msg.style.color = "green";
+    } else {
+      msg.textContent = `残念... -1 しむ (カード: ${nextCard})`;
+      msg.style.color = "red";
+    }
+
+    currentCard = nextCard;
+    userBalance = newBalance;
+    document.getElementById('balance').textContent = userBalance;
+  };
+
+  init();
+</script>
+</body>
+</html>
