@@ -118,6 +118,76 @@ header {
     text-align: center;
 }
 
+/* ===== 認証タブ ===== */
+.auth-tabs {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    width: min(320px, 100%);
+    margin: 0 auto 18px;
+    padding: 4px;
+    background: #e8f3ea;
+    border-radius: 999px;
+}
+
+.auth-tab-indicator {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    height: calc(100% - 8px);
+    border-radius: 999px;
+    background: linear-gradient(135deg, #43a047, #66bb6a);
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.28);
+    transition: transform 0.28s ease;
+}
+
+.auth-tab-indicator.register {
+    transform: translateX(100%);
+}
+
+.auth-tab-btn {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 999px;
+    background: transparent;
+    color: #2f5d35;
+    box-shadow: none;
+    transition: color 0.2s ease;
+}
+
+.auth-tab-btn:hover,
+.auth-tab-btn:active {
+    transform: none;
+}
+
+.auth-tab-btn.active {
+    color: white;
+}
+
+.auth-forms-wrapper {
+    display: flex;
+    width: 200%;
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+}
+
+.auth-forms-wrapper.show-register {
+    transform: translateX(-50%);
+}
+
+.auth-form-panel {
+    flex: 0 0 50%;
+}
+
+#loginScreen {
+    overflow: hidden;
+}
+
 /* ===== ランキング ===== */
 .rank-item {
     display: flex;
@@ -171,6 +241,10 @@ button:active {
     transform: translateY(0);
 }
 
+.auth-form-panel button {
+    display: block;
+}
+
 /* ===== 特殊ボタン ===== */
 .btn-outline {
     background: white !important;
@@ -205,3 +279,18 @@ button:active {
     text-decoration: none;
 }
 .back-btn:hover { background: #45a049; }
+
+@media (max-width: 480px) {
+    .container {
+        padding: 20px 16px;
+    }
+
+    .auth-tab-btn {
+        font-size: 0.95em;
+        padding: 10px 8px;
+    }
+
+    .auth-form-panel {
+        padding: 0 2px;
+    }
+}

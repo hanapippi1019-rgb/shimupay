@@ -56,6 +56,9 @@ function showScreen(screen) {
   document.getElementById("restoreLoading").style.display = "none";
   document.getElementById("loginScreen").style.display = screen === "login" ? "block" : "none";
   document.getElementById("bankScreen").style.display = screen === "bank" ? "block" : "none";
+  if (screen === "login") {
+    window.switchAuthTab("login");
+  }
 }
 
 function updateBankUI() {
@@ -377,6 +380,7 @@ window.logout = function logout() {
   currentUser = null;
   currentUserName = null;
   localStorage.removeItem("shimupay_user");
+  document.getElementById("message").textContent = "";
   showScreen("login");
 };
 
