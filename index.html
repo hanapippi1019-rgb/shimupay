@@ -13,32 +13,28 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <div id="restoreLoading">
   <div class="spinner"></div>
   <span class="spinner-text">読み込み中...</span>
 </div>
-
 <header>
   <button class="menu-btn" onclick="toggleDrawer()">☰</button>
   しむPay
 </header>
-
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-title">しむPay</div>
   <a class="drawer-item" href="ranking.html">ランキング</a>
-  <a class="drawer-item" href="https://forms.gle/3knWjZZchVdiuYZH6" target="_blank" rel="noopener noreferrer">お問い合わせ</a>
+  <a class="drawer-item" href="hoshiriwa.html">📦 ホシリワ</a>
+  <a class="drawer-item" href="https://forms.gle/3knWjZZchVdiuYZH6" target="_blank" rel="noopener noreferrer">🚨 通報フォーム</a>
   <a class="drawer-item" href="#" onclick="closeDrawer(); logout(); return false;">ログアウト</a>
 </div>
-
 <div class="container" id="loginScreen" style="display:none;">
   <div class="auth-tabs">
     <div class="auth-tab-indicator" id="tabIndicator"></div>
     <button class="auth-tab-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">ログイン</button>
     <button class="auth-tab-btn" id="tabRegisterBtn" onclick="switchAuthTab('register')">アカウント作成</button>
   </div>
-
   <div class="auth-forms-wrapper" id="authFormsWrapper">
     <div class="auth-form-panel">
       <input type="text" id="loginName" placeholder="名前">
@@ -46,7 +42,6 @@
       <br>
       <button onclick="login()">ログイン</button>
     </div>
-
     <div class="auth-form-panel">
       <input type="text" id="regName" placeholder="名前">
       <input type="password" id="regPass" placeholder="4桁のパスワード">
@@ -55,17 +50,14 @@
       <button onclick="createAccount()">アカウントを作成</button>
     </div>
   </div>
-
   <p id="loading" style="display:none;">処理中...</p>
   <p id="message" style="color:red; margin:4px 0; font-size:0.9em;"></p>
 </div>
-
 <div class="container" id="bankScreen" style="display:none;">
   <div class="notice-card">
     <h3>お知らせ</h3>
     <div id="noticeList"><p class="notice-empty">読み込み中...</p></div>
   </div>
-
   <div class="balance-card">
     <div class="user-name" id="userName">ユーザー</div>
     <div class="balance-label">残高</div>
@@ -74,32 +66,27 @@
       <span class="balance-unit"> しむ</span>
     </div>
   </div>
-
   <button class="bonus-btn" onclick="getLocationBonus()">登校ボーナスを受け取る</button>
-
   <div class="action-card">
     <h3>送金申請</h3>
     <input type="text" id="sendTo" placeholder="送る相手の名前">
     <input type="number" id="sendAmount" placeholder="送る金額（最大10）">
     <button onclick="sendMoney()">申請を送る</button>
   </div>
-
   <div class="action-card">
     <h3>受信した申請</h3>
     <div id="pendingList"><p style="color:#aaa;font-size:0.85em;margin:0;">申請はありません</p></div>
   </div>
-
   <div class="action-card">
     <h3>取引履歴</h3>
     <div id="history"></div>
   </div>
-
   <button class="btn-gray" onclick="location.href='ranking.html'">🏆ランキングを見る🏆</button>
+  <button class="btn-gray" onclick="location.href='hoshiriwa.html'">📦 ホシリワ</button>
   <button class="btn-danger" onclick="window.open('https://forms.gle/3knWjZZchVdiuYZH6','_blank')">🚨通報フォーム🚨</button>
   <button class="btn-outline" onclick="logout()">ログアウト</button>
   <p id="bankMessage" style="color:red; font-size:0.9em; margin:6px 0;"></p>
 </div>
-
 <script type="module" src="shikumi.js?v=6"></script>
 </body>
 </html>
