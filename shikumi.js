@@ -239,15 +239,19 @@ window.approveRequest=async function(requestId,fromName,amount) {
     if(!ss.exists()){setMessage("bankMessage",TEXT.senderNotFound);return;}
     const sender=ss.val();
     if((sender.balance||0)<amount){setMessage("bankMessage",TEXT.senderLowBalance);return;}
-    const updates={};
-    updates[`accounts/${fromName}/balance`]=sender.balance-amount;
-    updates[`accounts/${fromName}/history`]=[...(sender.history||[]),`${currentUserName} さんへ ${amount} しむ送金`].slice(-10);
-    updates[`accounts/${currentUserName}/balance`]=(currentUser.balance||0)+amount;
-    updates[`accounts/${currentUserName}/history`]=[...(currentUser.history||[]),`${fromName} さんから ${amount} しむ受け取り`].slice(-10);
-    updates[`requests/${currentUserName}/${requestId}`]=null;
-    await update(ref(db),updates);
+
+    // updateの代わりに個別setで書き込む
+    const senderNewHistory=[...(sender.history||[]),`${currentUserName} さんへ ${amount} しむ送金`].slice(-10);
+    const receiverNewHistory=[...(currentUser.history||[]),`${fromName} さんから ${amount} しむ受け取り`].slice(-10);
+
+    await set(ref(db,`accounts/${fromName}/balance`), sender.balance - amount);
+    await set(ref(db,`accounts/${fromName}/history`), senderNewHistory);
+    await set(ref(db,`accounts/${currentUserName}/balance`), (currentUser.balance||0) + amount);
+    await set(ref(db,`accounts/${currentUserName}/history`), receiverNewHistory);
+    await set(ref(db,`requests/${currentUserName}/${requestId}`), null);
+
     currentUser.balance=(currentUser.balance||0)+amount;
-    currentUser.history=[...(currentUser.history||[]),`${fromName} さんから ${amount} しむ受け取り`].slice(-10);
+    currentUser.history=receiverNewHistory;
     updateBankUI(); loadPendingRequests();
     setMessage("bankMessage",`${fromName} さんから ${amount} しむ受け取りました`,"green");
   } catch {setMessage("bankMessage",TEXT.approveError);}
@@ -294,7 +298,7 @@ window.subscribePremium=async function() {
     currentUser.balance=nb; currentUser.history=nh;
     currentUser.isPremium=true; currentUser.premiumSince=Date.now();
     updateBankUI();
-    alert("💎 VIP会員になりました");
+    alert("💎 VIP会員になりました！送金上限が30しむにアップしました！");
   } catch {msg.textContent="購入に失敗しました";}
 };
 
