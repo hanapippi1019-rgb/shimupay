@@ -210,6 +210,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   border: 2px solid #4caf50 !important; box-shadow: none !important;
 }
 .btn-outline:hover { background: #f1f8f1 !important; }
+.btn-gold { background: linear-gradient(135deg, #78909c, #90a4ae, #78909c) !important; box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important; }
 .btn-gray { background: linear-gradient(135deg, #78909c, #90a4ae) !important; box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important; }
 .btn-danger { background: rgb(255,0,0) !important; }
 .btn-danger:hover { box-shadow: 0 0 15px #ff0000 !important; }
