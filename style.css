@@ -122,7 +122,11 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 /* ===== ログイン画面 ===== */
 #loginScreen { display: none; }
 #loginScreen {
-  margin-top: max(0px, calc((100svh - var(--header-height) - env(safe-area-inset-top, 0px) - 120px) / 2));
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
 }
 .auth-tabs {
   display: flex; width: 90%; margin: 0 auto 20px;
@@ -206,8 +210,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   border: 2px solid #4caf50 !important; box-shadow: none !important;
 }
 .btn-outline:hover { background: #f1f8f1 !important; }
-.btn-gold { background: linear-gradient(135deg, #b8952a,#ffd700, #b8952a) !important; box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important; }
-.btn-gray { background: linear-gradient(135deg, #90a4ae, #90a4ae) !important; box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important; }
+.btn-gray { background: linear-gradient(135deg, #78909c, #90a4ae) !important; box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important; }
 .btn-danger { background: rgb(255,0,0) !important; }
 .btn-danger:hover { box-shadow: 0 0 15px #ff0000 !important; }
 .bonus-btn { background: linear-gradient(rgb(255,0,0), #ffa726) !important; }
