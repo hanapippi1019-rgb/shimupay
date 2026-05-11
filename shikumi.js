@@ -235,22 +235,30 @@ window.sendMoney=async function() {
 
 window.approveRequest=async function(requestId,fromName,amount) {
   try {
+    // amountを必ず数値に変換
+    const amt = Number(amount);
     const ss=await get(ref(db,`accounts/${fromName}`));
     if(!ss.exists()){setMessage("bankMessage",TEXT.senderNotFound);return;}
     const sender=ss.val();
-    if((sender.balance||0)<amount){setMessage("bankMessage",TEXT.senderLowBalance);return;}
-    const updates={};
-    updates[`accounts/${fromName}/balance`]=sender.balance-amount;
-    updates[`accounts/${fromName}/history`]=[...(sender.history||[]),`${currentUserName} さんへ ${amount} しむ送金`].slice(-10);
-    updates[`accounts/${currentUserName}/balance`]=(currentUser.balance||0)+amount;
-    updates[`accounts/${currentUserName}/history`]=[...(currentUser.history||[]),`${fromName} さんから ${amount} しむ受け取り`].slice(-10);
-    updates[`requests/${currentUserName}/${requestId}`]=null;
-    await update(ref(db),updates);
-    currentUser.balance=(currentUser.balance||0)+amount;
-    currentUser.history=[...(currentUser.history||[]),`${fromName} さんから ${amount} しむ受け取り`].slice(-10);
+    if((sender.balance||0)<amt){setMessage("bankMessage",TEXT.senderLowBalance);return;}
+
+    const senderNewBalance = Number(sender.balance) - amt;
+    const receiverNewBalance = Number(currentUser.balance||0) + amt;
+    if(receiverNewBalance > 10000){setMessage("bankMessage","残高上限（10000しむ）を超えるため受け取れません");return;}
+    const senderNewHistory=[...(sender.history||[]),`${currentUserName} さんへ ${amt} しむ送金`].slice(-10);
+    const receiverNewHistory=[...(currentUser.history||[]),`${fromName} さんから ${amt} しむ受け取り`].slice(-10);
+
+    await set(ref(db,`accounts/${fromName}/balance`), senderNewBalance);
+    await set(ref(db,`accounts/${fromName}/history`), senderNewHistory);
+    await set(ref(db,`accounts/${currentUserName}/balance`), receiverNewBalance);
+    await set(ref(db,`accounts/${currentUserName}/history`), receiverNewHistory);
+    await set(ref(db,`requests/${currentUserName}/${requestId}`), null);
+
+    currentUser.balance=receiverNewBalance;
+    currentUser.history=receiverNewHistory;
     updateBankUI(); loadPendingRequests();
-    setMessage("bankMessage",`${fromName} さんから ${amount} しむ受け取りました`,"green");
-  } catch {setMessage("bankMessage",TEXT.approveError);}
+    setMessage("bankMessage",`${fromName} さんから ${amt} しむ受け取りました`,"green");
+  } catch(e) {setMessage("bankMessage",TEXT.approveError); console.error(e);}
 };
 
 window.rejectRequest=async function(requestId) {
@@ -272,6 +280,7 @@ window.getLocationBonus=async function() {
     const a=Math.sin(dLat/2)**2+Math.cos(tLat*Math.PI/180)*Math.cos(lat*Math.PI/180)*Math.sin(dLon/2)**2;
     const dist=R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
     if(dist<=lim){
+      if((currentUser.balance||0)+2 > 10000){setMessage("bankMessage","残高上限（10000しむ）に達しています");btn.disabled=false;return;}
       currentUser.balance=(currentUser.balance||0)+2;
       currentUser.history=currentUser.history||[];
       currentUser.history.push(TEXT.locationBonusHistory);
@@ -294,7 +303,7 @@ window.subscribePremium=async function() {
     currentUser.balance=nb; currentUser.history=nh;
     currentUser.isPremium=true; currentUser.premiumSince=Date.now();
     updateBankUI();
-    alert("💎 VIP会員になりました");
+    alert("💎 VIP会員になりました！送金上限が30しむにアップしました！");
   } catch {msg.textContent="購入に失敗しました";}
 };
 
