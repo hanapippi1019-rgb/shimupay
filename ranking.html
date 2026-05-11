@@ -8,166 +8,115 @@
 <meta name="theme-color" content="#4caf50">
 <link rel="stylesheet" href="style.css">
 <style>
-  #rankingPodium {
-    margin-bottom: 18px;
+  body { padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px) + 16px); }
+
+  .rank-container {
+    width: 360px; max-width: 92%;
+    padding: 24px 20px;
+    background: white; border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    margin: 16px auto 32px;
+    box-sizing: border-box;
   }
 
-  .podium-wrap {
+  h2 {
+    text-align: center; margin: 0 0 24px;
+    font-size: 1.3em; color: #333;
+  }
+
+  /* ===== 表彰台 ===== */
+  .podium-wrapper {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    gap: 12px;
-    margin: 10px 0 20px;
-    padding: 12px 0 4px;
+    gap: 8px;
+    margin-bottom: 24px;
+    padding: 0 8px;
   }
-
-  .podium-card {
+  .podium-item {
     flex: 1;
-    max-width: 96px;
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
   }
-
-  .podium-crown {
-    font-size: 1.35em;
-    line-height: 1;
-  }
-
+  .podium-crown { font-size: 1.4em; }
   .podium-rank {
-    font-size: 0.85em;
-    font-weight: bold;
+    font-size: 0.82em; font-weight: bold;
     color: #666;
   }
-
   .podium-name {
-    font-weight: bold;
-    color: #333;
-    line-height: 1.35;
-    word-break: break-word;
+    font-size: 0.88em; font-weight: bold;
+    color: #333; text-align: center;
+    max-width: 80px; word-break: break-all;
   }
-
   .podium-balance {
-    font-size: 0.85em;
-    color: #666;
+    font-size: 0.78em; color: #666;
+    margin-bottom: 4px;
   }
-
-  .podium-step {
-    width: 100%;
-    border-radius: 14px 14px 0 0;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+  .podium-vip {
+    display: inline-block; font-size: 0.65em; font-weight: bold;
+    background: linear-gradient(135deg, #b8952a, #ffd700, #b8952a);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    border: 1px solid #b8952a; border-radius: 3px;
+    padding: 1px 4px; line-height: 1.4; margin-bottom: 2px;
   }
-
-  .podium-1 .podium-step {
-    height: 118px;
-    background: linear-gradient(180deg, #ffe082, #ffca28);
+  .podium-bar {
+    width: 100%; border-radius: 8px 8px 0 0;
   }
+  .podium-1st .podium-bar { background: linear-gradient(180deg, #FFD700, #FFA500); height: 80px; }
+  .podium-2nd .podium-bar { background: linear-gradient(180deg, #C0C0C0, #A0A0A0); height: 60px; }
+  .podium-3rd .podium-bar { background: linear-gradient(180deg, #CD7F32, #A0522D); height: 44px; }
 
-  .podium-2 .podium-step {
-    height: 92px;
-    background: linear-gradient(180deg, #eceff1, #b0bec5);
-  }
+  /* 2位を左、1位を中央、3位を右に並べる */
+  .podium-wrapper .podium-item:nth-child(1) { order: 1; }
+  .podium-wrapper .podium-item:nth-child(2) { order: 0; }
+  .podium-wrapper .podium-item:nth-child(3) { order: 2; }
 
-  .podium-3 .podium-step {
-    height: 74px;
-    background: linear-gradient(180deg, #d7a36d, #b87333);
-  }
-
-  .podium-1 .podium-rank,
-  .podium-1 .podium-name {
-    color: #8d6e00;
-  }
-
-  .podium-2 .podium-rank,
-  .podium-2 .podium-name {
-    color: #546e7a;
-  }
-
-  .podium-3 .podium-rank,
-  .podium-3 .podium-name {
-    color: #8d5524;
-  }
-
+  /* ===== 4位以下リスト ===== */
+  .rank-list { border-top: 1px solid #f0f0f0; padding-top: 8px; }
   .rank-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-    background: #f8faf8;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex; align-items: center;
+    padding: 12px 8px; border-bottom: 1px solid #f5f5f5;
   }
-
+  .rank-item:last-child { border-bottom: none; }
   .rank-num {
-    min-width: 48px;
-    font-weight: bold;
-    color: #4caf50;
+    font-size: 0.9em; font-weight: bold; color: #4caf50;
+    width: 36px; flex-shrink: 0; text-align: center;
   }
-
   .rank-name {
-    flex: 1;
-    text-align: left;
-    color: #333;
-    font-weight: bold;
-    word-break: break-word;
+    flex: 1; font-size: 0.95em; color: #333;
+    margin-left: 8px;
+    display: flex; align-items: center; gap: 6px;
   }
-
-  .rank-balance {
-    color: #666;
-    font-size: 0.92em;
-    white-space: nowrap;
+  .rank-vip {
+    display: inline-block; font-size: 0.65em; font-weight: bold;
+    background: linear-gradient(135deg, #b8952a, #ffd700, #b8952a);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    border: 1px solid #b8952a; border-radius: 3px;
+    padding: 1px 4px; line-height: 1.4;
   }
+  .rank-balance { font-size: 0.88em; font-weight: bold; color: #4caf50; }
 
-  .back-btn {
-    display: inline-block;
-    margin-top: 8px;
-    color: #4caf50;
-    text-decoration: none;
-    font-weight: bold;
+  .back-link {
+    display: block; text-align: center;
+    margin-top: 20px; color: #4caf50;
+    font-size: 0.95em; text-decoration: none; font-weight: bold;
   }
+  .back-link:hover { text-decoration: underline; }
 
-  .back-btn:hover {
-    text-decoration: underline;
-  }
-
-  @media (max-width: 480px) {
-    .podium-wrap {
-      gap: 8px;
-    }
-
-    .podium-card {
-      max-width: none;
-    }
-
-    .podium-name {
-      font-size: 0.92em;
-    }
-
-    .rank-item {
-      padding: 12px;
-      gap: 8px;
-    }
-
-    .rank-num {
-      min-width: 40px;
-    }
-
-    .rank-balance {
-      font-size: 0.86em;
-    }
-  }
+  #loading-msg { text-align: center; color: #888; padding: 20px; }
 </style>
 </head>
 <body>
 <header>しむPay</header>
-<div class="container">
+
+<div class="rank-container">
   <h2>ランキング</h2>
-  <div id="rankingPodium"></div>
-  <div id="rankingList"><p id="loading-msg">読み込み中...</p></div>
-  <a href="index.html" class="back-btn">ホームに戻る</a>
+  <div id="rankingContent"><p id="loading-msg">読み込み中...</p></div>
+  <a href="index.html" class="back-link">ホームに戻る</a>
 </div>
 
 <script type="module">
@@ -184,62 +133,64 @@
     appId: "1:88269096434:web:c030c1e599c9dc92af576b"
   };
 
-  const TEXT = {
-    noUsers: "ユーザーが見つかりません",
-    noMoreUsers: "4位以下のユーザーはいません",
-    unit: "しむ"
-  };
-
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  const snap = await get(ref(db, "accounts"));
-  const podium = document.getElementById("rankingPodium");
-  const list = document.getElementById("rankingList");
+
+  const snap = await get(ref(db, 'accounts'));
+  const content = document.getElementById('rankingContent');
 
   if (!snap.exists()) {
-    podium.innerHTML = "";
-    list.innerHTML = `<p style="text-align:center;color:#888;">${TEXT.noUsers}</p>`;
+    content.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">まだユーザーがいません</p>';
   } else {
     const accounts = snap.val();
     const sorted = Object.entries(accounts)
       .sort((a, b) => (b[1].balance || 0) - (a[1].balance || 0));
 
-    const topThree = sorted.slice(0, 3);
-    const podiumOrder = [1, 0, 2]
-      .map((index) => topThree[index])
-      .filter(Boolean);
+    const crowns = ['👑', '', ''];
+    const rankLabels = ['1位', '2位', '3位'];
+    const podiumClass = ['podium-1st', 'podium-2nd', 'podium-3rd'];
 
-    podium.innerHTML = topThree.length ? `
-      <section class="podium-wrap" aria-label="上位3名">
-        ${podiumOrder.map(([name, data]) => {
-          const rank = sorted.findIndex(([entryName]) => entryName === name) + 1;
-          const crown = rank === 1 ? '<div class="podium-crown">👑</div>' : "";
+    // 表彰台（1〜3位）
+    const top3 = sorted.slice(0, 3);
+    // 2位・1位・3位の順で並べる（CSSのorderで制御）
+    const podiumOrder = [
+      top3[0], // 1位（order:1で中央）
+      top3[1], // 2位（order:0で左）
+      top3[2]  // 3位（order:2で右）
+    ].filter(Boolean);
 
-          return `
-            <article class="podium-card podium-${rank}">
-              ${crown}
-              <div class="podium-rank">${rank}位</div>
-              <div class="podium-name">${name}</div>
-              <div class="podium-balance">${data.balance || 0} ${TEXT.unit}</div>
-              <div class="podium-step"></div>
-            </article>
-          `;
-        }).join("")}
-      </section>
-    ` : "";
+    let podiumHTML = '<div class="podium-wrapper">';
+    podiumOrder.forEach((entry, idx) => {
+      if (!entry) return;
+      const [name, data] = entry;
+      const realRank = sorted.indexOf(entry);
+      const vipBadge = data.isPremium ? '<span class="podium-vip">VIP</span>' : '';
+      podiumHTML += `
+        <div class="podium-item ${podiumClass[realRank]}">
+          <div class="podium-crown">${crowns[realRank]}</div>
+          <div class="podium-rank">${rankLabels[realRank]}</div>
+          ${vipBadge}
+          <div class="podium-name">${name}</div>
+          <div class="podium-balance">${data.balance || 0} しむ</div>
+          <div class="podium-bar"></div>
+        </div>`;
+    });
+    podiumHTML += '</div>';
 
-    const others = sorted.slice(3);
-    list.innerHTML = others.length ? others.map(([name, data], i) => {
-      const rank = i + 4;
-
-      return `
+    // 4位以下
+    let listHTML = '<div class="rank-list">';
+    sorted.slice(3).forEach(([name, data], i) => {
+      const vipBadge = data.isPremium ? '<span class="rank-vip">VIP</span>' : '';
+      listHTML += `
         <div class="rank-item">
-          <span class="rank-num">${rank}位</span>
-          <span class="rank-name">${name}</span>
-          <span class="rank-balance">${data.balance || 0} ${TEXT.unit}</span>
-        </div>
-      `;
-    }).join("") : `<p style="text-align:center;color:#888;">${TEXT.noMoreUsers}</p>`;
+          <span class="rank-num">${i + 4}位</span>
+          <span class="rank-name">${name}${vipBadge}</span>
+          <span class="rank-balance">${data.balance || 0} しむ</span>
+        </div>`;
+    });
+    listHTML += '</div>';
+
+    content.innerHTML = podiumHTML + listHTML;
   }
 </script>
 </body>
