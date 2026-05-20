@@ -209,39 +209,61 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   background: white !important; color: #4caf50 !important;
   border: 2px solid #4caf50 !important; box-shadow: none !important;
 }
-.btn-outline:hover { background: #f1f8f1 !important; }
-.btn-gold { background: linear-gradient(135deg, #ffd700, #b8952a, #ffd700) !important; box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important; }
-.btn-gray { background: linear-gradient(135deg, #78909c, #90a4ae) !important; box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important; }
+.btn-outline:hover { background: #4caf50 !important; color: white !important; }
+.btn-gold { background: linear-gradient(135deg, #b8952a 5%, #ffd700 15%,#ffd700 20%, #b8952a 35%);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            background-size: 200%;
+            background-position: 0% center;
+            transition: background-position 0.2s ease-in-out, color 0.4s ease;
+            }
+
+.btn-gray { background: linear-gradient(135deg, #78909c, #90a4ae) !important;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important; }
+
 .btn-danger { background: rgb(255,0,0) !important; }
+
 .btn-danger:hover { box-shadow: 0 0 15px #ff0000 !important; }
+
 .bonus-btn { background: linear-gradient(rgb(255,0,0), #ffa726) !important; }
+
 .bonus-btn:hover { box-shadow: 0 0 15px #ff0000 !important; }
+
+.btn-gold:hover {background-position: -200% center;}
 
 /* ===== VIPカード ===== */
 .vip-card {
-  background: linear-gradient(135deg, #1a2a3a, #2c3e50);
+  background: linear-gradient(135deg, #1a2a3a 5%, hsl(210, 38%, 25%) 10%,hsl(210, 38%, 25%) 12%, #1a2a3a 17%);
   border-radius: 16px; padding: 20px; margin-bottom: 14px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.3);
   text-align: center; position: relative; overflow: hidden;
-  border: 1px solid #b8952a;
-}
-.vip-card::before {
-  content: ''; position: absolute; top: -50%; left: -50%;
-  width: 200%; height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(212,175,55,0.05), transparent);
-  animation: shimmer 3s infinite;
+  border: 2px solid #b8952a;
+  background-size: 300%
 }
 @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
 .vip-badge {
   display: inline-block; font-size: 2em; font-weight: bold;
-  background: linear-gradient(135deg, #b8952a, #ffd700, #b8952a);
+  background: linear-gradient(135deg, #b8952a 35%, #ffd700 40%,#ffd700 40%,#b8952a 45%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   background-clip: text; letter-spacing: 4px; margin-bottom: 4px;
+  animation: kirakira 5s linear infinite;
+  background-size: 300%
 }
+@keyframes kirakira{
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+  }
 .vip-sub { color: #c9a84c; font-size: 0.75em; letter-spacing: 3px; margin-bottom: 12px; }
-.vip-perks {
-  text-align: left; color: #d4af37; font-size: 0.82em; line-height: 1.8;
-  background: rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 12px;
+.vip-explanation{
+  display: inline-block; font-size: 0.85em;
+  background: linear-gradient(135deg, #b8952a 35%, #ffd700 40%,#ffd700 40%,#b8952a 45%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0px; 
+  margin-bottom: 5px;
+  text-align: left;
+  animation: kirakira 5s linear infinite;
+  background-size: 300%
 }
 .vip-since { color: #888; font-size: 0.75em; margin-top: 8px; }
 
